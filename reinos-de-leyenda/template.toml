@@ -1,0 +1,8 @@
+# A profile ready to play Reinos de Leyenda: where it is played, and its
+# plugin on, which installs its gauges, channels and map, and says the
+# language the game is played in.
+name = "Reinos de Leyenda"
+host = "reinosdeleyenda.es"
+port = 5001
+tls = false
+plugins = ["reinos-de-leyenda"]
