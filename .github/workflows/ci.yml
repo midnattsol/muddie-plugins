@@ -1,0 +1,95 @@
+name: ci
+
+on:
+  pull_request:
+    paths: &changed
+      - "*/**"
+      - "tools/**"
+      - ".github/**"
+      - "release-please-config.json"
+      - ".release-please-manifest.json"
+      - "version.txt"
+      - "CHANGELOG.md"
+  push:
+    branches: [main]
+    paths: *changed
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Check plugin folders
+        run: python3 tools/check.py
+
+      - name: Pack plugins
+        run: python3 tools/pack.py "$RUNNER_TEMP/plugins.zip"
+
+      - name: Install luau-compile from a pinned Luau release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/luau"
+          mkdir -p "$dir"
+          gh release download 0.748 --repo luau-lang/luau \
+            --pattern luau-ubuntu.zip --dir "$dir"
+          echo "e6905c04dbccaeff54ca4986b0017f125db5aa301bcb34d0446355cbfee5bc83  $dir/luau-ubuntu.zip" | sha256sum --check --strict
+          unzip -q "$dir/luau-ubuntu.zip" luau-compile -d "$dir"
+          chmod +x "$dir/luau-compile"
+          echo "$dir" >> "$GITHUB_PATH"
+
+      - name: Syntax check every Luau script
+        run: |
+          set -euo pipefail
+          mapfile -d '' scripts < <(find . -path ./.git -prune -o -name '*.luau' -print0)
+          luau-compile --only-parse "${scripts[@]}"
+
+  release:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          token: ${{ github.token }}
+
+      - uses: actions/checkout@v7
+        if: steps.release.outputs.release_created == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        if: steps.release.outputs.release_created == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Pack and upload plugins.zip
+        if: steps.release.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          set -euo pipefail
+          python3 tools/pack.py plugins.zip
+          gh release upload "$TAG" plugins.zip --repo "$GITHUB_REPOSITORY"
