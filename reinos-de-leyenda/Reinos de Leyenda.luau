@@ -172,7 +172,12 @@ local MAP = "https://mudlet.reinosdeleyenda.es/Mapa_Mudlet.zip"
 -- Its name, in the language the interface is in when shown.
 local SYNC = { en = "Sync with the official map", es = "Sincronizar con el mapa oficial" }
 
+-- The month a newer map was last told of, kept in the profile: told at each
+-- connection, it would be noise.
+local NEWER_TOLD = "Reinos de Leyenda: mapa nuevo avisado"
+
 map.action(SYNC, function()
+    vars[NEWER_TOLD] = nil
     map.import(MAP)
 end)
 
@@ -245,6 +250,9 @@ local function all_directions(exits)
     return true
 end
 
+-- The map did not follow a move: told once, until it follows again.
+local stray_told = false
+
 local function step(seen)
     -- A line the game wrote whose brackets hold anything but directions
     -- was not a room: the move alone is followed.
@@ -256,7 +264,8 @@ local function step(seen)
     -- where it was.
     local here = map.room()
     local exit = here and seen.came and map.exit(here.id, seen.came)
-    if seen.came and not seen.name and here and not (exit and map.room(exit.to)) then
+    local stray = seen.came and not seen.name and here and not (exit and map.room(exit.to))
+    if stray and not stray_told then
         notify(if exit
             then tr({
                 en = `The map does not know where {seen.came} from {here.name} leads: it has not followed you.`,
@@ -267,6 +276,9 @@ local function step(seen)
                 es = `El mapa no tiene la salida {seen.came} desde {here.name}: no te ha seguido.`,
             }))
     end
+    if seen.came then
+        stray_told = stray
+    end
     local now = map.arrive(seen)
     -- Shown when Muddie is started with --debug.
     log(`Reinos: name={seen.name} exits={table.concat(seen.exits or {}, ",")} came={seen.came} -> {now}`)
@@ -275,33 +287,90 @@ end
 -- The room as the game writes it. Each player sets what the prompt says
 -- and how a room is shown, so neither is counted on: the prompt ends in no
 -- new line, and with lag the room comes after it on its line, as "[PV 90]
--- Anduar: Arco Este [s,e,n,o]"; what is before the name is let go a word
--- at a time, up to a name the map has a room of.
-local function known_room(text)
-    local rest = text
-    while rest do
-        if #map.find(rest, { exact = true }) > 0 then
-            return rest
+-- Anduar: Arco Este [s,e,n,o]". The game ends every prompt in ">", whatever
+-- it says, exits between brackets too.
+
+-- A line, and what is left of it after each ">" or "]" it may have from a
+-- prompt: the room is one of these, whole, or it is not there. Never the
+-- last words of a line: anyone may say the name of a room.
+local function without_prompt(line)
+    local parts = { line }
+    local from = 1
+    while true do
+        local _, last = line:find("[>%]]%s*", from)
+        if not last or last >= #line then
+            return parts
         end
-        rest = rest:match("^%S+%s+(.+)$")
+        from = last + 1
+        table.insert(parts, line:sub(from))
     end
-    return nil
+end
+
+-- The room a line writes: its name, if it is one the map has; else what
+-- would be its name, if it can be one.
+local function room_written(line)
+    local parts = without_prompt(line)
+    for _, part in parts do
+        if #map.find(part, { exact = true }) > 0 then
+            return part, nil
+        end
+    end
+    -- What ends in a colon names what follows it, as "SL:" the exits.
+    local last = parts[#parts]
+    return nil, if last:match("%S") and not last:match(":%s*$") then last else nil
+end
+
+-- Whether a name has a region, or a part, as the rooms of most places do:
+-- "Anduar: Plaza Mayor", "Catedral de la Guerra - Tesorería".
+local function like_a_room(name)
+    return name:match("%S: %S") ~= nil or name:match("%S %- %S") ~= nil
+end
+
+-- What was written before exits with no move after it, and is no room the
+-- map has, with the room the player was in: part of a prompt of several
+-- lines, as "Salidas [n,s]", which comes in room after room, or a room only
+-- looked at. What is known to be of the prompt, true, is not taken for the
+-- room moved to.
+local no_room = {}
+
+local function looked_at(this)
+    local name = this.unknown
+    local here = map.room()
+    if not like_a_room(name) then
+        no_room[name] = true
+    elseif here then
+        local before = no_room[name] or here.id
+        no_room[name] = if before == here.id then before else true
+    else
+        -- Lost: it may be a room the map has by another name.
+        this.name = name
+        step(this)
+    end
 end
 
 local function written(this)
+    -- A room the map has is not put aside for what comes after it.
+    if shown and shown.name and not this.name then
+        return
+    end
     shown = this
     after(0.2, function()
-        if shown == this then
-            shown = nil
+        if shown ~= this then
+            return
+        end
+        shown = nil
+        if this.name then
             step(this)
+        elseif this.unknown then
+            looked_at(this)
         end
     end)
 end
 
 -- With its exits after it, as most show it.
 trigger([[^(.*?) \[([A-Za-z|,\-]+)\]\s*$]], function(m)
-    local name = known_room(m[1]) or m[1]:match("^.-[%]>]%s+(.+)$") or m[1]
-    written({ name = name, exits = exits_of(m[2]), written = true })
+    local name, unknown = room_written(m[1])
+    written({ name = name, unknown = unknown, exits = exits_of(m[2]), written = true })
 end, { place = "Reinos de Leyenda/Sala escrita" })
 
 -- Or by its name alone, as some show it: only a name the map has.
@@ -309,29 +378,25 @@ trigger([[^(.*\S: \S.*?)\s*$]], function(m)
     if m[1]:match("%[[^%]]*%]%s*$") then
         return
     end
-    local name = known_room(m[1])
+    local name = room_written(m[1])
     if name then
         written({ name = name, written = true })
     end
 end, { place = "Reinos de Leyenda/Sala escrita sin salidas" })
 
--- Moves come, but the map does not know where from: said once, with what
--- tells it, as moving alone does not.
-local lost_told = false
-
 on_gmcp("Room.Movimiento", function(way)
     heard = true
     local seen = shown or {}
     shown = nil
+    if not seen.name then
+        if seen.unknown and no_room[seen.unknown] ~= true then
+            seen.name = seen.unknown
+        else
+            seen.exits = nil
+        end
+    end
     seen.came = text_of(way)
     step(seen)
-    if not map.room() and not lost_told then
-        lost_told = true
-        notify(tr({
-            en = "The map does not know where you are. Reinos de Leyenda says it on logging in: reconnect, or say it with “I am in…”, in the palette.",
-            es = "El mapa no sabe dónde estás. Reinos de Leyenda lo dice al entrar: reconecta, o díselo con «Estoy en…», en la paleta.",
-        }))
-    end
 end)
 
 -- A move that could not be made: it did not happen, and a walk stops.
@@ -353,12 +418,18 @@ end)
 -- Once per connection: the map, and whether GMCP comes.
 on_event("connect", function()
     heard = false
-    lost_told = false
+    stray_told = false
+    no_room = {}
     shown = nil
     if map.count() == 0 then
         map.import(MAP)
     else
         map.newer(MAP, function()
+            local month = os.date("%Y-%m")
+            if vars[NEWER_TOLD] == month then
+                return
+            end
+            vars[NEWER_TOLD] = month
             notify(tr({
                 en = `There is a new version of the official map. To bring it: “{SYNC.en}”, in the map's menu or the palette. What you have put right on the map is kept.`,
                 es = `Hay una versión nueva del mapa oficial. Para traerla: «{SYNC.es}», en el menú del mapa o en la paleta. Lo que hayas corregido en el mapa se mantiene.`,
