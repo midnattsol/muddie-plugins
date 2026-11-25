@@ -82,17 +82,19 @@ declare wait: ((seconds: number) -> ())
     & ((what: string, name: string, options: { [string]: any }?) -> ...any)
 declare function lines(options: Lines): () -> Line?
 
--- Listening.
+-- Listening. A name, where it takes one; the function; and the options, which
+-- are those of a gauge, or where it is switched. The function is given:
+--   gmcp, msdp, var, emit    the data and the name
+--   gauge                    a Gauge and a Change
+--   channel                  a Message
+--   send                     the text; what it returns is sent instead
+--   the others               their data, and what they are
 type Change = { was: Gauge, came: { Effect }, gone: { Effect } }
-type Levels = { under: number?, over: number?, place: string?, tags: (string | { string })? }
 type Message = { channel: string, text: string }
-declare on: ((what: "gmcp" | "msdp" | "var" | "emit", name: string, fn: (data: any, name: string) -> (), options: Switched?) -> Made)
-    & ((what: "gauge", name: string, fn: (gauge: Gauge, change: Change) -> (), options: Levels?) -> Made)
-    & ((what: "gauge", fn: (gauge: Gauge, change: Change) -> (), options: Levels?) -> Made)
-    & ((what: "channel", name: string, fn: (message: Message) -> (), options: Switched?) -> Made)
-    & ((what: "channel", fn: (message: Message) -> (), options: Switched?) -> Made)
-    & ((what: "send", fn: (text: string) -> any, options: Switched?) -> Made)
-    & ((what: "connect" | "disconnect" | "focus" | "reader" | "panel" | "mxp", fn: (data: any, name: string) -> (), options: Switched?) -> Made)
+type Listened = "gmcp" | "msdp" | "var" | "emit" | "gauge" | "channel" | "send" | "connect" | "disconnect" | "focus" | "reader" | "panel" | "mxp"
+type Handler = (...any) -> ...any
+type Listening = { under: number?, over: number?, place: string?, tags: (string | { string })? }
+declare function on(what: Listened, name: string | Handler, fn: (Handler | Listening)?, options: Listening?): Made
 declare function emit(name: string, data: any): ()
 
 -- What the MUD sends besides text.

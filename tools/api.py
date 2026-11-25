@@ -26,7 +26,7 @@ TOLD = re.compile(
     r"Unknown global"
     r"|not found in table '(Gauges|Kind|Panels|Channels|Sounds?|Session|MapTable|Gmcp|Msdp|Mssp|Line|Made)'"
     r"|Cannot compare unrelated types 'Line'"
-    r"|Expected this to be .*\"never\""
+    r"|Expected this to be .*\"(never|connect)\""
     r"|of table 'Session' is read-only"
     r"|SyntaxError"
 )
