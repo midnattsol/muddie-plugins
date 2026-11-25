@@ -17,7 +17,7 @@
 --
 -- The MUD sends nothing over GMCP until asked from inside the game:
 --     consentir gmcp on
--- If nothing has come a while after connecting, this says so.
+-- If nothing has come a while after entering the game, this says so.
 --
 -- What it shows is in the language of the interface, English or Spanish,
 -- each text given in both.
@@ -414,10 +414,34 @@ local function written(this)
     end)
 end
 
+-- The player is in the game, as a room is written: from then on GMCP is to
+-- come, and if it does not, it is told how to ask for it.
+local entered = false
+local asking = nil
+
+local function enter()
+    if entered then
+        return
+    end
+    entered = true
+    asking = after(90, function()
+        if not heard then
+            notify(tr({
+                en = "Reinos de Leyenda does not send your life, the channels or where you are until you write in the game: consentir gmcp on",
+                es = "Reinos de Leyenda no manda la vida, los canales ni dónde estás hasta que escribas en el juego: consentir gmcp on",
+            }))
+        end
+    end)
+end
+
 -- With its exits after it, as most show it.
 trigger([[^(.*?) \[([A-Za-z|,\-]+)\]\s*$]], function(m)
     local name, unknown = room_written(m[1])
-    written({ name = name, unknown = unknown, exits = exits_of(m[2]), written = true })
+    local exits = exits_of(m[2])
+    if all_directions(exits) then
+        enter()
+    end
+    written({ name = name, unknown = unknown, exits = exits, written = true })
 end, { place = "Reinos de Leyenda/Room written" })
 
 -- Or by its name alone, as some show it: only a name the map has.
@@ -427,6 +451,7 @@ trigger([[^(.*\S: \S.*?)\s*$]], function(m)
     end
     local name = room_written(m[1])
     if name then
+        enter()
         written({ name = name, written = true })
     end
 end, { place = "Reinos de Leyenda/Room written without exits" })
@@ -483,12 +508,9 @@ on("connect", function()
             }))
         end)
     end
-    after(90, function()
-        if not heard then
-            notify(tr({
-                en = "Reinos de Leyenda does not send your life, the channels or where you are until you write in the game: consentir gmcp on",
-                es = "Reinos de Leyenda no manda la vida, los canales ni dónde estás hasta que escribas en el juego: consentir gmcp on",
-            }))
-        end
-    end)
+    entered = false
+    if asking then
+        asking:remove()
+        asking = nil
+    end
 end)
