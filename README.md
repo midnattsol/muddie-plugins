@@ -24,6 +24,7 @@ pull request, run:
 
 ```sh
 python3 tools/check.py   # checks every plugin folder
+python3 tools/api.py     # checks the use of the API of Muddie, with luau-analyze
 python3 tools/pack.py    # builds plugins.zip in the repository root
 ```
 

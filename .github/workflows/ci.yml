@@ -36,7 +36,7 @@ jobs:
       - name: Pack plugins
         run: python3 tools/pack.py "$RUNNER_TEMP/plugins.zip"
 
-      - name: Install luau-compile from a pinned Luau release
+      - name: Install Luau from a pinned release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -46,15 +46,18 @@ jobs:
           gh release download 0.748 --repo luau-lang/luau \
             --pattern luau-ubuntu.zip --dir "$dir"
           echo "e6905c04dbccaeff54ca4986b0017f125db5aa301bcb34d0446355cbfee5bc83  $dir/luau-ubuntu.zip" | sha256sum --check --strict
-          unzip -q "$dir/luau-ubuntu.zip" luau-compile -d "$dir"
-          chmod +x "$dir/luau-compile"
+          unzip -q "$dir/luau-ubuntu.zip" luau-compile luau-analyze -d "$dir"
+          chmod +x "$dir/luau-compile" "$dir/luau-analyze"
           echo "$dir" >> "$GITHUB_PATH"
 
       - name: Syntax check every Luau script
         run: |
           set -euo pipefail
-          mapfile -d '' scripts < <(find . -path ./.git -prune -o -name '*.luau' -print0)
+          mapfile -d '' scripts < <(find . \( -path ./.git -o -path ./tools \) -prune -o -name '*.luau' -print0)
           luau-compile --only-parse "${scripts[@]}"
+
+      - name: Check the use of the API of Muddie
+        run: python3 tools/api.py
 
   release:
     needs: check
