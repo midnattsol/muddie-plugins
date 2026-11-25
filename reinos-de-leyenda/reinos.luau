@@ -22,6 +22,8 @@
 -- What it shows is in the language of the interface, English or Spanish,
 -- each text given in both.
 
+local prompt = require("prompt")
+
 gmcp.support("Char 1")
 gmcp.support("Comm 1")
 gmcp.support("Room 1")
@@ -307,20 +309,42 @@ local function step(seen)
     log(`Reinos: name={seen.name} exits={table.concat(seen.exits or {}, ",")} came={seen.came} -> {now}`)
 end
 
--- The room as the game writes it. Each player sets what the prompt says
--- and how a room is shown, so neither is counted on: the prompt ends in no
--- new line, and with lag the room comes after it on its line, as "[PV 90]
--- Anduar: Arco Este [s,e,n,o]". The game ends every prompt in ">", whatever
--- it says, exits between brackets too.
+-- The prompt, as the player makes it: the game says it so, whole, on lines as
+-- long as it writes them.
+trigger([[^(?:.*[>\]}] )?Tu prompt (de combate )?ha sido definido como '(.*)$]], function(m)
+    local template = m[2]
+    while not template:match("'%.%s*$") do
+        local _, line = wait("line", "", { timeout = 1, prompt = false })
+        if not line then
+            return
+        end
+        template ..= " " .. line.text
+    end
+    prompt.learn(m[1] ~= nil and m[1] ~= "", (template:gsub("'%.%s*$", "")))
+end, { place = "Reinos de Leyenda/Prompt" })
 
--- A line, and what is left of it after each ">" or "]" it may have from a
--- prompt: the room is one of these, whole, or it is not there. Never the
--- last words of a line: anyone may say the name of a room.
+-- The room as the game writes it. Each player sets what the prompt says and
+-- how a room is shown: the prompt ends in no new line, and with lag the room
+-- comes after it on its line, as "[PV 90] Anduar: Arco Este [s,e,n,o]". Known
+-- the prompt, the room is the line, or what is after the prompt. Not known, the
+-- game ends every one in ">", "]" or "}", exits between brackets too.
+
+-- What a line may be, whole, with no prompt before it: the line, and what is
+-- left of it after each sign that may end a prompt. The room is one of these
+-- or it is not there. Never the last words of a line: anyone may say the name
+-- of a room.
 local function without_prompt(line)
+    local rest = prompt.rest(line)
+    if rest then
+        return if rest == "" then {} else { rest }
+    end
     local parts = { line }
+    if prompt.is_known() then
+        return parts
+    end
     local from = 1
     while true do
-        local _, last = line:find("[>%]]%s*", from)
+        local _, last = line:find("[>%]}]%s*", from)
         if not last or last >= #line then
             return parts
         end
@@ -339,7 +363,7 @@ local function room_written(line)
         end
     end
     -- What ends in a colon names what follows it, as "SL:" the exits.
-    local last = parts[#parts]
+    local last = parts[#parts] or ""
     return nil, if last:match("%S") and not last:match(":%s*$") then last else nil
 end
 
