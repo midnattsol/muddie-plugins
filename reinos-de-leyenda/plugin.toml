@@ -5,4 +5,4 @@ hosts = ["rlmud.org", "reinosdeleyenda"]
 names = ["reinos de leyenda"]
 
 # The oldest Muddie that can install this plugin.
-muddie = "0.4.0"
+muddie = "0.5.0"

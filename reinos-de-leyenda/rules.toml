@@ -3,6 +3,10 @@
 # green, yellow under 60 %, red under 30 %, a whole bar. In Efectos, the
 # states the character is in, which the plugin keeps in the variable
 # estados.
+#
+# Read aloud, life cuts in on what is being read only under 30 %, and
+# energy and faith wait; of the states, the script Lectura says what
+# changes.
 
 [[gauge]]
 name = "Vida"
@@ -11,6 +15,7 @@ max = "Char.Status.pvs.max"
 colour = "#5fb85f"
 kind = "bar"
 step = [{ under = 60, colour = "#e0c040" }, { under = 30, colour = "#e05050" }]
+announce = "lowest"
 panel = "Puntos"
 
 [[gauge]]
@@ -20,6 +25,7 @@ max = "Char.Status.pe.max"
 colour = "#5fb85f"
 kind = "bar"
 step = [{ under = 60, colour = "#e0c040" }, { under = 30, colour = "#e05050" }]
+announce = "wait"
 panel = "Puntos"
 
 [[gauge]]
@@ -29,6 +35,7 @@ max = "Char.Status.fe.max"
 colour = "#5fb85f"
 kind = "bar"
 step = [{ under = 60, colour = "#e0c040" }, { under = 30, colour = "#e05050" }]
+announce = "wait"
 panel = "Puntos"
 
 [[gauge]]
@@ -36,4 +43,5 @@ name = "Efectos"
 value = "estados"
 colour = "#8a9bb8"
 kind = "effects"
+announce = "never"
 panel = "Efectos"

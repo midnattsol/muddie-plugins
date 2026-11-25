@@ -56,8 +56,8 @@ end)
 ---------------------------------------------------------------------------
 -- States: kept in the variable estados, which the gauge Efectos of the
 -- editor follows, each a label with what it is; the worst kinds first, in
--- their colour. A state is {nombre, corto, tipo, ayuda}. They are not said
--- aloud: the game says so itself, in its text.
+-- their colour. A state is {nombre, corto, tipo, ayuda}. What changes of
+-- them is said by Lectura.
 
 -- The colour of each kind of state, the worst first.
 local KINDS = {
@@ -128,15 +128,20 @@ end)
 -- away when the character leaves it. What was said before logging in comes
 -- too.
 
-local function said(data)
+local function said(data, before)
     heard = true
     if type(data) == "table" and data.canal and data.mensaje then
-        channel(data.canal, data.mensaje)
+        channel(data.canal, data.mensaje, { quiet = before })
     end
 end
 
-on_gmcp("Comm.MensajeCanal", said)
-on_gmcp("Comm.MensajeCanalHistorico", said)
+on_gmcp("Comm.MensajeCanal", function(data)
+    said(data, false)
+end)
+-- Kept, and not read aloud: it comes all at once.
+on_gmcp("Comm.MensajeCanalHistorico", function(data)
+    said(data, true)
+end)
 
 on_gmcp("Comm.Canales", function(data)
     heard = true
