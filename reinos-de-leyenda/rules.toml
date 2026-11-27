@@ -3,8 +3,9 @@
 # green, yellow under 60 %, red under 30 %, a whole bar. The states the
 # character is in are shown by reinos.luau, in Efectos.
 #
-# Read aloud, life cuts in on what is being read only under 30 %, and
-# energy and faith wait.
+# Life says nothing itself: life.luau says it as it falls under half, 30 %
+# and 10 %, and how much was lost or gained, so that nothing is said twice
+# and it can be switched off alone. Energy and faith wait their turn.
 
 [[gauge]]
 name = "Vida"
@@ -13,7 +14,7 @@ max = "Char.Status.pvs.max"
 colour = "#5fb85f"
 kind = "bar"
 steps = [{ under = 60, colour = "#e0c040" }, { under = 30, colour = "#e05050" }]
-aloud = "lowest"
+aloud = "never"
 panel = "Puntos"
 
 [[gauge]]

@@ -1,8 +1,8 @@
 name = "Reinos de Leyenda"
-about = { en = "Its gauges, channels and map. Needs consentir gmcp on, typed in the game.", es = "Sus indicadores, canales y mapa. Requiere activar el GMCP en el juego con «consentir gmcp on»." }
+about = { en = "Its gauges, channels and map; ways of playing, lists of what was said and happened, and keys as in VipMud. Needs consentir gmcp on, typed in the game.", es = "Sus indicadores, canales y mapa; modos de juego, listas de lo dicho y lo pasado, y teclas como en VipMud. Requiere activar el GMCP en el juego con «consentir gmcp on»." }
 # The MUD it is for: part of its address, or the name it gives itself.
 hosts = ["rlmud.org", "reinosdeleyenda"]
 names = ["reinos de leyenda"]
 
 # The oldest Muddie that can install this plugin.
-muddie = "0.5.0"
+muddie = "0.6.0"
