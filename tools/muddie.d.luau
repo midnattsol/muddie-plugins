@@ -214,6 +214,11 @@ type Session = {
 declare session: Session
 declare vars: { [string]: any }
 
+-- Muddie's shortcuts, by name: read, a list of keys; set, a key, a list of
+-- keys, false for none, or nil for those it had.
+type Shortcut = { name: string, place: string, about: string, keys: { string } }
+declare shortcuts: { all: () -> { Shortcut }, [string]: any }
+
 -- The map. A place is a room's number, or a mark or a name.
 type Place = number | string
 type Room = {
