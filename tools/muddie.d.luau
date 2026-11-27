@@ -88,10 +88,11 @@ declare function lines(options: Lines): () -> Line?
 --   gauge                    a Gauge and a Change
 --   channel                  a Message
 --   send                     the text; what it returns is sent instead
+--   room                     the Room the player is now in, and the id before
 --   the others               their data, and what they are
 type Change = { was: Gauge, came: { Effect }, gone: { Effect } }
 type Message = { channel: string, text: string }
-type Listened = "gmcp" | "msdp" | "var" | "emit" | "gauge" | "channel" | "send" | "connect" | "disconnect" | "focus" | "reader" | "panel" | "mxp"
+type Listened = "gmcp" | "msdp" | "var" | "emit" | "gauge" | "channel" | "send" | "room" | "connect" | "disconnect" | "focus" | "reader" | "panel" | "mxp"
 type Handler = (...any) -> ...any
 type Listening = { under: number?, over: number?, place: string?, tags: (string | { string })? }
 declare function on(what: Listened, name: string | Handler, fn: (Handler | Listening)?, options: Listening?): Made
@@ -199,6 +200,11 @@ declare channels: Channels
 declare sounds: Sounds
 declare output: { last: (count: number?) -> { string } }
 
+-- A list to choose from, and the clipboard.
+type Choosable = string | { text: string | Texts, about: (string | Texts)? }
+declare function choose(items: { Choosable }, fn: (index: number?, text: string?) -> (), options: { title: (string | Texts)? }?): ()
+declare clipboard: { set: (text: string) -> (), get: () -> string? }
+
 -- The session, and what is kept in it.
 type Session = {
     read connected: boolean,
@@ -208,6 +214,7 @@ type Session = {
     read focused: boolean,
     separator: any,
     input: string?,
+    reading: boolean,
     completions: (name: string, words: { string }?) -> (),
     feed: (text: string) -> (),
 }
