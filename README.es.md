@@ -10,6 +10,12 @@ mano. English: [README.md](README.md).
 
 ## Contribuir
 
+Cómo hacer un plugin, paso a paso, y cómo ayudarse de una IA:
+[plugins.es.md](https://github.com/midnattsol/muddie/blob/main/docs/plugins.es.md),
+con cada función en
+[scripting.es.md](https://github.com/midnattsol/muddie/blob/main/docs/scripting.es.md).
+
+
 Un plugin es una carpeta en el nivel superior con:
 
 - `plugin.toml`: el nombre, una descripción corta (`about`), los MUD para

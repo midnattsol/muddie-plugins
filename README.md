@@ -10,6 +10,12 @@ Español: [README.es.md](README.es.md).
 
 ## Contributing
 
+How to make a plugin, step by step, and how to have an AI help:
+[plugins.md](https://github.com/midnattsol/muddie/blob/main/docs/plugins.md),
+with every function in
+[scripting.md](https://github.com/midnattsol/muddie/blob/main/docs/scripting.md).
+
+
 A plugin is a folder at the top level with:
 
 - `plugin.toml`: the name, a short description (`about`), the MUDs it is for
