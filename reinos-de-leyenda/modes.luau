@@ -10,7 +10,7 @@
 --
 -- And the game read aloud or not at all, apart from the mode.
 --
--- The mode is changed from the map's menu or the palette, with the alias
+-- The mode is changed from the palette, with the alias
 -- "modo" (the next, or "modo xp"), or with a key of keys.luau; it is said
 -- once as it changes, and remembered. The other scripts of the plugin read
 -- it, vars.reinos_mode, and ask for another with emit("reinos_mode", name):
@@ -82,7 +82,7 @@ end
 
 apply(current())
 
-map.action({ en = "Next way of playing (mode)", es = "Siguiente modo de juego" }, next_mode)
+action({ en = "Next way of playing (mode)", es = "Siguiente modo de juego" }, next_mode)
 
 alias("^modo$", next_mode, { place = "Reinos de Leyenda/Modes/Next" })
 alias("^modo (\\w+)$", function(m)
@@ -124,6 +124,6 @@ local function quiet()
         { always = true })
 end
 
-map.action({ en = "Quiet: the game not read", es = "Silencio: no leer el juego" }, quiet)
+action({ en = "Quiet: the game not read", es = "Silencio: no leer el juego" }, quiet)
 alias("^silencio$", quiet, { place = "Reinos de Leyenda/Modes/Quiet" })
 on("emit", "reinos_quiet", quiet)

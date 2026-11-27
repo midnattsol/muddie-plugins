@@ -16,7 +16,7 @@ se puede apagar sola en el editor:
 
 - **Modos de juego** (`modes.luau`): original, combate, experiencia e
   inactivo, cada uno lee más o menos del juego. Se cambian con `modo` (el
-  siguiente), `modo xp`, `modo?`, o desde el menú del mapa o la paleta.
+  siguiente), `modo xp`, `modo?`, o desde la paleta.
   `silencio` deja de leer el juego y lo vuelve a leer.
 - **Listas** (`history.luau`): lo dicho en la sala (`hsala`), las telepatías
   (`htels`) y lo que pasa en combate (`heventos`), para recorrerlas y copiar
@@ -31,7 +31,7 @@ se puede apagar sola en el editor:
 - **Corrector** (`corrector.luau`): lo que escriben otros jugadores se lee
   sin signos que molestan ni la raza tras el nombre, sin cambiar lo que se ve.
 - **Teclas como en VipMud** (`keys.luau`), apagadas hasta que las enciendas
-  con `teclasrl` o desde el menú del mapa: Alt con u, i, o, j, k, l, 7, 8, 9,
+  con `teclasrl` o desde la paleta: Alt con u, i, o, j, k, l, 7, 8, 9,
   m, coma y punto para caminar (también por el mapa), Alt+1 y Alt+2 la vida y
   la energía, F2 a F5 lo último de cada lista y con Mayúsculas la lista, F11
   el modo y F12 el silencio.

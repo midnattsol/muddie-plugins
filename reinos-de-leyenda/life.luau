@@ -1,6 +1,6 @@
 -- Life, heard: how much was lost or gained as it changes, and a warning as
 -- it falls under half, under 30 % and under 10 %, the last cutting in on
--- whatever is being read. The last changes are kept, to read them again
+-- whatever is being read and heard even with the game quiet. The last changes are kept, to read them again
 -- with the alias "hvida" (or a key of keys.luau), and to copy one.
 --
 -- The gauge Vida of the editor shows life and is read with Alt+0; this is
@@ -71,16 +71,40 @@ on("disconnect", function()
     before = nil
 end)
 
--- Warnings as life falls, each once until it comes back over it.
-on("gauge", "Vida", function()
-    speak({ en = "Life under half.", es = "Vida por debajo de la mitad." }, { aloud = "wait" })
-end, { under = 50, place = "Reinos de Leyenda/Life/Half" })
-on("gauge", "Vida", function()
-    speak({ en = "Life low!", es = "¡Vida baja!" }, { aloud = "cut" })
-end, { under = 30, place = "Reinos de Leyenda/Life/Low" })
-on("gauge", "Vida", function()
-    speak({ en = "Life critical!", es = "¡Vida crítica!" }, { aloud = "cut", always = true })
-end, { under = 10, place = "Reinos de Leyenda/Life/Critical" })
+-- Warnings as life falls under each step, once until it comes back 5 %
+-- over it: from what the MUD sends, not from the gauge, which the player
+-- may change or delete.
+local STEPS = {
+    { under = 50, said = { en = "Life under half.", es = "Vida por debajo de la mitad." }, aloud = "wait" },
+    { under = 30, said = { en = "Life low!", es = "¡Vida baja!" }, aloud = "cut" },
+    { under = 10, said = { en = "Life critical!", es = "¡Vida crítica!" }, aloud = "cut", always = true },
+}
+-- The steps it is under now, told already.
+local under: { [number]: boolean } = {}
+
+local function warn(now: number, most: number)
+    local percent = now * 100 / math.max(most, 1)
+    -- The lowest step crossed is the one said.
+    local said = nil
+    for _, step in STEPS do
+        if percent < step.under and not under[step.under] then
+            under[step.under] = true
+            said = step
+        elseif percent >= step.under + 5 then
+            under[step.under] = nil
+        end
+    end
+    if said and (vars.reinos_mode ~= "idle" or said.always) then
+        speak(said.said, { aloud = said.aloud, always = said.always })
+    end
+end
+
+on("gmcp", "Char.Status", function()
+    local now, most = life()
+    if now and most then
+        warn(now, most)
+    end
+end)
 
 -- The last change, said; and all of them, to choose one to copy.
 local function last_change()

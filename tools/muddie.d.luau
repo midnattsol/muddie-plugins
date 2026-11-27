@@ -185,7 +185,7 @@ type Channels = {
     close: (name: string) -> (),
     all: () -> { string },
 }
-type Sound = { stop: (self: Sound) -> (), playing: (self: Sound) -> boolean }
+type Sound = { stop: (self: Sound) -> (), playing: (self: Sound) -> boolean, volume: (self: Sound, volume: number) -> () }
 type SoundOptions = {
     volume: number?,
     loop: boolean?,
@@ -193,8 +193,10 @@ type SoundOptions = {
     finish: number?,
     fade_in: number?,
     fade_out: number?,
+    pan: number?,
+    group: string?,
 }
-type Sounds = { play: (file: string, options: SoundOptions?) -> Sound, stop: () -> () }
+type Sounds = { play: (file: string, options: SoundOptions?) -> Sound, stop: () -> (), volume: (group: string, volume: number?) -> number }
 declare panels: Panels
 declare channels: Channels
 declare sounds: Sounds
@@ -204,6 +206,9 @@ declare output: { last: (count: number?) -> { string } }
 type Choosable = string | { text: string | Texts, about: (string | Texts)? }
 declare function choose(items: { Choosable }, fn: (index: number?, text: string?) -> (), options: { title: (string | Texts)? }?): ()
 declare clipboard: { set: (text: string) -> (), get: () -> string? }
+
+-- Something to do, offered in the palette; ticked, for a switch.
+declare function action(name: string | Texts, fn: ((on: boolean?) -> ())?, options: { checked: boolean? }?): ()
 
 -- The session, and what is kept in it.
 type Session = {

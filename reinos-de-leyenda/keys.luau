@@ -1,5 +1,5 @@
 -- Keys as players of Reinos de Leyenda coming from VipMud know them: off
--- until the player switches them on, from the map's menu or the palette,
+-- until the player switches them on, from the palette,
 -- or with the alias "teclasrl"; remembered. A plugin of a MUD does not
 -- change anyone's keys unasked.
 --
@@ -170,9 +170,9 @@ end
 local ACTION = { en = "Keys of Reinos, as in VipMud", es = "Teclas de Reinos, como en VipMud" }
 local switch: (on: boolean) -> ()
 
--- Offered in the map's menu and the palette, ticked while they are on.
+-- Offered in the palette, ticked while they are on.
 local function offer()
-    map.action(ACTION, switch, { checked = on_now })
+    action(ACTION, switch, { checked = on_now })
 end
 
 function switch(on: boolean)

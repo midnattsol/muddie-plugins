@@ -16,7 +16,7 @@ be switched off alone in the editor:
 
 - **Ways of playing** (`modes.luau`): original, combat, experience and idle,
   each reading more or less of the game. Changed with `modo` (the next),
-  `modo xp`, `modo?`, or from the map's menu or the palette. `silencio`
+  `modo xp`, `modo?`, or from the palette. `silencio`
   stops reading the game and reads it again.
 - **Lists** (`history.luau`): what was said in the room (`hsala`), the tells
   (`htels`) and what happens in a fight (`heventos`), to go through and copy
@@ -31,7 +31,7 @@ be switched off alone in the editor:
 - **Corrector** (`corrector.luau`): what other players write is read without
   annoying signs nor the race after the name, without changing what is shown.
 - **Keys as in VipMud** (`keys.luau`), off until you switch them on with
-  `teclasrl` or from the map's menu: Alt with u, i, o, j, k, l, 7, 8, 9, m,
+  `teclasrl` or from the palette: Alt with u, i, o, j, k, l, 7, 8, 9, m,
   comma and period to walk (on the map too), Alt+1 and Alt+2 life and energy,
   F2 to F5 the last of each list and with Shift the list, F11 the mode and F12
   quiet.
