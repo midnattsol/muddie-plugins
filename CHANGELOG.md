@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/midnattsol/muddie-plugins/compare/v0.1.0...v0.2.0) (2026-11-28)
+
+
+### Features
+
+* **reinos:** modes, lists, life, moves and keys ([2056487](https://github.com/midnattsol/muddie-plugins/commit/2056487d8c4d7386d8e66b5dc49e0616eb725698))
+* **reinos:** sounds of ScriptsRL, for the ear ([dedbbf8](https://github.com/midnattsol/muddie-plugins/commit/dedbbf886336c225071f884460e4e862b6fc5aa2))
+
+
+### Bug Fixes
+
+* **reinos:** warn of life from the mud, not a gauge ([600068f](https://github.com/midnattsol/muddie-plugins/commit/600068ff5ab38fc1a57a21d1ca3bdf1745f26ebe))
+
 ## 0.1.0 (2026-11-25)
 
 
