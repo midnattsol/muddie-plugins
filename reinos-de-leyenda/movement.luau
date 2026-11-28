@@ -54,6 +54,7 @@ local function moved(who: string, way: string, came: boolean, line: Line)
         then tr({ en = `{name} arrives, {way}`, es = `{name} llega, {way}` })
         else tr({ en = `{name} leaves, {way}`, es = `{name} se va, {way}` })
     keep(short)
+    emit("reinos_event", { kind = if came then "arrives" else "leaves", who = name, way = way, target = is_target(name) })
     if came then
         here[name:lower()] = true
     else
@@ -96,6 +97,7 @@ trigger([[^(.+?) est[aá]n? aqu[ií]\.$]], function(m, line)
     for _, name in corrector.names(m[1]) do
         local key = name:lower()
         if is_target(name) and not here[key] then
+            emit("reinos_event", { kind = "target_here", who = name })
             speak({ en = `Target here: {name}!`, es = `¡Objetivo aquí: {name}!` }, { aloud = "cut" })
         end
         here[key] = true

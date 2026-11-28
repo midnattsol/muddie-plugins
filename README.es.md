@@ -36,6 +36,22 @@ se puede apagar sola en el editor:
   la energía, F2 a F5 lo último de cada lista y con Mayúsculas la lista, F11
   el modo y F12 el silencio.
 
+### Sonidos
+
+`sounds.luau` pone los sonidos de [ScriptsRL](https://github.com/DPrenC/ScriptsRL),
+de Rhomdur y Enorthus, con su permiso: la vida que baja, una y otra vez hasta
+que sube; que te atacan, una muerte, alguien descubierto; una telepatía, lo
+que se dice en la sala; quién llega y se va, por el lado por el que viene; el
+objetivo; los modos y el silencio. No son parte del plugin: Muddie descarga
+del repositorio de ScriptsRL solo los que se usan aquí, una vez, y los guarda.
+
+Están activados con lector de pantalla y desactivados sin él. `sonidos`, o
+la paleta, los cambia, y se recuerda. Cada grupo tiene su volumen, de 0 a
+100: `volumen alertas 40`, y `alertas`, `combate`, `mensajes`, `movimiento` o
+`ambiente`; sin cifra, se dice cuál tiene. Quien ya tenga ScriptsRL puede
+poner el contenido de su carpeta `sounds/RL` en la carpeta `sounds` del
+perfil: se usan esos, y no se descarga nada.
+
 ## Contribuir
 
 Cómo hacer un plugin, paso a paso, y cómo ayudarse de una IA:

@@ -64,6 +64,7 @@ local function choose_mode(mode: string)
     vars[KEPT] = mode
     apply(mode)
     if mode ~= before then
+        emit("reinos_event", { kind = "mode", mode = mode })
         speak({ en = `Mode: {NAMES[mode].en}.`, es = `Modo: {NAMES[mode].es}.` }, { aloud = "cut" })
     end
 end
@@ -118,6 +119,7 @@ end, { place = "Reinos de Leyenda/Modes/Which" })
 local function quiet()
     local reading = not session.reading
     session.reading = reading
+    emit("reinos_event", { kind = "quiet", on = not reading })
     speak(if reading
         then { en = "The game is read aloud again.", es = "Se vuelve a leer el juego." }
         else { en = "Quiet: the game is not read.", es = "Silencio: el juego no se lee." },

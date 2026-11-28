@@ -196,7 +196,7 @@ type SoundOptions = {
     pan: number?,
     group: string?,
 }
-type Sounds = { play: (file: string, options: SoundOptions?) -> Sound, stop: () -> (), volume: (group: string, volume: number?) -> number }
+type Sounds = { play: (file: string, options: SoundOptions?) -> Sound, stop: () -> (), volume: (group: string, volume: number?) -> number, fetch: (names: { string }) -> () }
 declare panels: Panels
 declare channels: Channels
 declare sounds: Sounds

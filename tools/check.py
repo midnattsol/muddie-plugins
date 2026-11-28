@@ -73,6 +73,12 @@ def check_manifest(path: Path, errors: list[str]) -> None:
         ):
             errors.append(f"{path}: '{key}' must be a list of non-empty strings")
 
+    sounds = manifest.get("sounds")
+    if sounds is not None and not (
+        isinstance(sounds, str) and sounds.startswith("https://")
+    ):
+        errors.append(f"{path}: 'sounds' must be the https address of a folder")
+
     muddie = manifest.get("muddie")
     if not isinstance(muddie, str) or not VERSION.match(muddie):
         errors.append(f"{path}: 'muddie' must be a version X.Y.Z, got {muddie!r}")

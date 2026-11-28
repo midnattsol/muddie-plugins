@@ -52,6 +52,7 @@ trigger([[^(?:.* - )?(\S+) te (dice|exclama|pregunta|dijo): (.+)$]], function(m,
     local who = corrector.name(m[1])
     local said = corrector.text(m[3])
     keep(tells, `{who}: {said}`)
+    emit("reinos_event", { kind = "tell", who = who })
     reply_to = who
     for index, known in senders do
         if known == who then
@@ -78,6 +79,7 @@ trigger([[^(\S+(?: \S+)?) (dice|pregunta|exclama|susurra|responde|balbucea|orden
     local who = corrector.name(m[1])
     local said = corrector.text(m[3])
     keep(room, `{who}: {said}`)
+    emit("reinos_event", { kind = "room", who = who })
     if mode() == "idle" then
         line:mute()
     elseif tags.enabled("reinos-brief") then
@@ -88,20 +90,23 @@ end, { place = "Reinos de Leyenda/History/Room" })
 ---------------------------------------------------------------------------
 -- What happens that matters, kept as the game says it.
 
+-- Each with what kind of thing it is, told to who listens (sounds.luau).
 local EVENTS = {
-    [[^Est[aá]s siendo atacad[oa] por (.+?)\.?$]],
-    [[^¡?Descubres a .+ intentando moverse en silencio!?$]],
-    [[^.+ descubre a .+ intentando moverse en silencio!?$]],
-    [[^\[Grupo\] .+ (?:se une al|abandona el) grupo\.$]],
-    [[^\[Grupo\] .+ es expulsad[oa] del grupo\.$]],
-    [[^\[Grupo\] (?:Te unes al|Abandonas el) grupo liderado por .+$]],
-    [[^Propinas el golpe mortal a .+$]],
-    [[^.+ propina el golpe mortal a .+$]],
+    { [[^Est[aá]s siendo atacad[oa] por (.+?)\.?$]], "attacked" },
+    { [[^¡?Descubres a .+ intentando moverse en silencio!?$]], "found" },
+    { [[^.+ descubre a .+ intentando moverse en silencio!?$]], "found" },
+    { [[^\[Grupo\] .+ (?:se une al|abandona el) grupo\.$]], "group" },
+    { [[^\[Grupo\] .+ es expulsad[oa] del grupo\.$]], "group" },
+    { [[^\[Grupo\] (?:Te unes al|Abandonas el) grupo liderado por .+$]], "group" },
+    { [[^Propinas el golpe mortal a .+$]], "kill" },
+    { [[^.+ propina el golpe mortal a .+$]], "death" },
 }
 
-for _, pattern in EVENTS do
+for _, event in EVENTS do
+    local pattern, kind = event[1], event[2]
     trigger(pattern, function(_, line)
         keep(events, corrector.text(line.text))
+        emit("reinos_event", { kind = kind })
     end, { place = "Reinos de Leyenda/History/Events" })
 end
 
@@ -161,6 +166,7 @@ local function open(name: string)
     choose(of.list, function(_, text)
         if text then
             clipboard.set(text)
+            emit("reinos_event", { kind = "copied" })
             speak({ en = "Copied.", es = "Copiado." })
         end
     end, { title = of.title })

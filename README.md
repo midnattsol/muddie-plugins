@@ -36,6 +36,22 @@ be switched off alone in the editor:
   F2 to F5 the last of each list and with Shift the list, F11 the mode and F12
   quiet.
 
+### Sounds
+
+`sounds.luau` plays the sounds of [ScriptsRL](https://github.com/DPrenC/ScriptsRL),
+by Rhomdur and Enorthus, with their permission: life running low, again and
+again until it rises; being attacked, a kill, someone found hiding; a tell,
+what is said in the room; who comes and goes, to the side they come by; the
+target; the modes and quiet. They are not part of the plugin: Muddie fetches
+from ScriptsRL's repository only those played here, once, and keeps them.
+
+They are on with a screen reader, and off without. `sonidos`, or the palette,
+switches them, and it is remembered. Each group has its volume, from 0 to
+100: `volumen alertas 40`, and `alertas`, `combate`, `mensajes`, `movimiento`
+or `ambiente`; with no figure, it is said. Who already has ScriptsRL can put
+the contents of its `sounds/RL` folder in the profile's `sounds` folder:
+those are played, and nothing is fetched.
+
 ## Contributing
 
 How to make a plugin, step by step, and how to have an AI help:

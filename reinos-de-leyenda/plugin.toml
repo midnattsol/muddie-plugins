@@ -4,5 +4,10 @@ about = { en = "Its gauges, channels and map; ways of playing, lists of what was
 hosts = ["rlmud.org", "reinosdeleyenda"]
 names = ["reinos de leyenda"]
 
+# Where its sounds are: those of ScriptsRL, by Rhomdur and Enorthus, used
+# with their permission. Muddie fetches those the plugin plays, and keeps
+# them; they are never part of the plugin.
+sounds = "https://raw.githubusercontent.com/DPrenC/ScriptsRL/905b41d66ec05b7663b4abf11ff303a7b3493b4a/sounds/RL"
+
 # The oldest Muddie that can install this plugin.
 muddie = "0.6.0"
